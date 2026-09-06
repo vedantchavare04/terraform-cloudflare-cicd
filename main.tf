@@ -1,4 +1,13 @@
 terraform {
+
+  cloud{
+    organization="vedant-devops"
+
+    workspaces {
+      name="terraform-cloudflare-cicd"
+    }
+  }
+
   required_providers {
     cloudflare = {
       source  = "cloudflare/cloudflare"
