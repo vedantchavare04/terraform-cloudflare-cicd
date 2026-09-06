@@ -25,20 +25,19 @@ jobs:
         env:
           HCP_TOKEN: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
         run: |
-          mkdir -p ~/.terraform.d
-          cat > ~/.terraform.d/credentials.tfrc.json << EOF
-          {
-            "credentials": {
-              "app.terraform.io": {
-                "token": "$HCP_TOKEN"
-              }
-            }
+          cat > "$GITHUB_WORKSPACE/terraform.tfrc" <<EOF
+          credentials "app.terraform.io" {
+            token = "$HCP_TOKEN"
           }
           EOF
 
       - name: Terraform Init
+        env:
+          TF_CLI_CONFIG_FILE: ${{ github.workspace }}/terraform.tfrc
         run: terraform init
 
       - name: Terraform Apply
+        env:
+          TF_CLI_CONFIG_FILE: ${{ github.workspace }}/terraform.tfrc
         run: terraform apply -auto-approve
         
