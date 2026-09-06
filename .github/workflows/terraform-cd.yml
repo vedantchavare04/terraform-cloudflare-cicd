@@ -10,6 +10,10 @@ jobs:
     name: Terraform Apply
     runs-on: ubuntu-latest
 
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -17,26 +21,24 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Check HCP Token
+      - name: Configure HCP Terraform credentials
         env:
-          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
+          HCP_TOKEN: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
         run: |
-          if [ -z "$TF_TOKEN_app_terraform_io" ]; then
-            echo "ERROR: HCP Terraform token is missing"
-            exit 1
-          else
-            echo "HCP Terraform token is available"
-          fi
+          mkdir -p ~/.terraform.d
+          cat > ~/.terraform.d/credentials.tfrc.json << EOF
+          {
+            "credentials": {
+              "app.terraform.io": {
+                "token": "$HCP_TOKEN"
+              }
+            }
+          }
+          EOF
 
       - name: Terraform Init
-        env:
-          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
         run: terraform init
 
       - name: Terraform Apply
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          TF_VAR_cloudflare_account_id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
         run: terraform apply -auto-approve
         
