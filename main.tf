@@ -1,10 +1,10 @@
 terraform {
 
-  cloud{
-    organization="vedant-devops"
+  cloud {
+    organization = "vedant-devops"
 
     workspaces {
-      name="terraform-cloudflare-cicd"
+      name = "terraform-cloudflare-cicd"
     }
   }
 
